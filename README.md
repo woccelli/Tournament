@@ -1,3 +1,13 @@
+
+
+Project in development, 
+made to learn React
+
+Started on 13/11/2019
+William Occelli
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
