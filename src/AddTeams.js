@@ -3,7 +3,7 @@ import React from 'react';
 class AddTeams extends React.Component {
     constructor(props) {
       super(props);
-      this.state = { items: [], text: '' };
+      this.state = {name: '' };
       this.handleChange = this.handleChange.bind(this);
       this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -12,18 +12,18 @@ class AddTeams extends React.Component {
       return (
         <div>
           <h3>Ajout des équipes</h3>
-          <TeamList items={this.state.items} />
+          <ItemList items={this.props.teams} />
           <form onSubmit={this.handleSubmit}>
             <label htmlFor="new-team">
               Entrez le nom d'une équipe à ajouter au tournoi.
-            </label>
+            </label> <br/>
             <input
               id="new-team"
               onChange={this.handleChange}
-              value={this.state.text}
+              value={this.state.name}
             />
             <button>
-              Ajouter #{this.state.items.length + 1}
+              Ajouter #{this.props.teams.length + 1}
             </button>
           </form>
         </div>
@@ -31,31 +31,24 @@ class AddTeams extends React.Component {
     }
   
     handleChange(e) {
-      this.setState({ text: e.target.value });
+      this.setState({ name: e.target.value });
     }
   
     handleSubmit(e) {
       e.preventDefault();
-      if (!this.state.text.length) {
+      if (!this.state.name.length) {
         return;
       }
-      const newItem = {
-        text: this.state.text,
-        id: Date.now()
-      };
-      this.setState(state => ({
-        items: state.items.concat(newItem),
-        text: ''
-      }));
+      this.props.onChange(this.state.name);
     }
   }
   
-  class TeamList extends React.Component {
+  class ItemList extends React.Component {
     render() {
       return (
         <ul>
           {this.props.items.map(item => (
-            <li key={item.id}>{item.text}</li>
+            <li key={item.id}>{item.name}</li>
           ))}
         </ul>
       );

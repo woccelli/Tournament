@@ -4,10 +4,10 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-import AddTeams from './AddTeams';
+import Tournament from './Tournament';
 
 //<App />, document.getElementById('root'),
-ReactDOM.render(<AddTeams />,document.getElementById('root'));
+ReactDOM.render(<Tournament />,document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
