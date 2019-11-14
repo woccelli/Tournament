@@ -39,7 +39,7 @@ class AddTeams extends React.Component {
       if (!this.state.name.length) {
         return;
       }
-      this.props.onChange(this.state.name);
+      this.props.onChange(e.target[0].value);
     }
   }
   
