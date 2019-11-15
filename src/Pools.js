@@ -3,7 +3,6 @@ import React from 'react';
 class Pools extends React.Component {
     constructor(props) {
       super(props);
-      this.handleAddPool = this.handleAddPool.bind(this);
     }
   
     render() {
@@ -11,7 +10,7 @@ class Pools extends React.Component {
         <div>
           <h3>Pools formées</h3>
           <ItemList items={this.props.pools} />
-          <form onSubmit={this.handleSubmit}>
+          <form onSubmit={this.props.onPoolsValidation}>
             <button type="submit">
               Valider
             </button>
@@ -19,15 +18,9 @@ class Pools extends React.Component {
         </div>
       );
     }
+}
+
   
-    handleChange(e) {
-      this.setState({ name: e.target.value });
-    }
-  
-    handleAddPool() {
-      this.props.onAddPool();
-    }
-  }
 
   class ItemList extends React.Component {
     render() {

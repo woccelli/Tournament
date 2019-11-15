@@ -1,9 +1,9 @@
 import React from 'react';
 import AddTeams from './AddTeams'
-import PoolTabs from './PoolTabs'
 import Team from './Model/Team'
 import Pool from './Model/Pool'
 import Pools from './Pools'
+import Game from './Model/Game';
 
 function shuffleArray(array) {
     let i = array.length - 1;
@@ -14,6 +14,36 @@ function shuffleArray(array) {
         array[j] = temp;
     }
     return array;
+}
+
+const DUMMY = -1;
+// returns an array of round representations (array of player pairs).
+// http://en.wikipedia.org/wiki/Round-robin_tournament#Scheduling_algorithm
+function roundrobin(n, ps) {  // n = num players
+  var rs = [];                  // rs = round array
+  if (!ps) {
+    ps = [];
+    for (var k = 1; k <= n; k += 1) {
+      ps.push(k);
+    }
+  } else {
+    ps = ps.slice();
+  }
+
+  if (n % 2 === 1) {
+    ps.push(DUMMY); // so we can match algorithm for even numbers
+    n += 1;
+  }
+  for (var j = 0; j < n - 1; j += 1) {
+    rs[j] = []; // create inner match array for round j
+    for (var i = 0; i < n / 2; i += 1) {
+      if (ps[i] !== DUMMY && ps[n - 1 - i] !== DUMMY) {
+        rs[j].push([ps[i], ps[n - 1 - i]]); // insert pair as a match
+      }
+    }
+    ps.splice(1, 0, ps.pop()); // permutate for next round
+  }
+  return rs;
 }
 
 
@@ -33,6 +63,7 @@ class Tournament extends React.Component {
         this.handleNbPoolsChange = this.handleNbPoolsChange.bind(this);
         this.handleNbPoolsValidation = this.handleNbPoolsValidation.bind(this);
         this.updatedPools = this.updatedPools.bind(this);
+        this.handlePoolsValidation = this.handlePoolsValidation.bind(this);
     }
 
     handleTeamsChange(teamName) {
@@ -86,6 +117,32 @@ class Tournament extends React.Component {
         return updatedPools;
     }
 
+    handlePoolsValidation(){
+        var filledPools = this.fillPoolsWithGames(this.state.pools);
+        this.setState(state => ({
+            pools: filledPools
+        }))
+    }
+
+    fillPoolsWithGames(pools){
+        var poolsCopy = pools;
+        poolsCopy.map(pool =>
+            {
+                var res = roundrobin(pool.teams.length, pool.teams);
+                res.map(item => 
+                    {
+                        item.map(subitem =>
+                            {
+                                var g = new Game(Date.now, subitem[0], subitem[1]);
+                                pool.games = pool.games.concat([g]);
+                            }
+                        )
+                    }
+                )
+            }
+        )
+        return poolsCopy;
+    }
     shuffleTeams() {
         this.setState(state => ({
             teams: shuffleArray(state.teams)
@@ -117,7 +174,13 @@ class Tournament extends React.Component {
                     </form>
                 }
                 <div>
-                    {this.state.showPools && <div><Pools pools={this.state.pools} /></div>}
+                    {this.state.showPools && 
+                    <div>
+                        <Pools 
+                            pools={this.state.pools} 
+                            onPoolsValidation={this.handlePoolsValidation}
+                        />
+                    </div>}
                 </div>
             </div>
 
