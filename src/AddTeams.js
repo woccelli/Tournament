@@ -25,6 +25,10 @@ class AddTeams extends React.Component {
             <button>
               Ajouter #{this.props.teams.length + 1}
             </button>
+            <button onClick={this.props.onValidation}>
+              Valider
+            </button>
+
           </form>
         </div>
       );
@@ -39,6 +43,7 @@ class AddTeams extends React.Component {
       if (!this.state.name.length) {
         return;
       }
+      this.setState({ name: '' });
       this.props.onChange(e.target[0].value);
     }
   }
