@@ -12,7 +12,7 @@ class AddTeams extends React.Component {
       return (
         <div>
           <h3>Ajout des équipes</h3>
-          <ItemList items={this.props.teams} />
+          <ItemList items={this.props.teams}/>
           <form onSubmit={this.handleSubmit}>
             <label htmlFor="new-team">
               Entrez le nom d'une équipe à ajouter au tournoi.

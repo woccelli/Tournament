@@ -2,8 +2,8 @@ import React from 'react';
 import AddTeams from './AddTeams'
 import Team from './Model/Team'
 import Pool from './Model/Pool'
-import Pools from './Pools'
 import Game from './Model/Game';
+import Games from './Games'
 
 function shuffleArray(array) {
     let i = array.length - 1;
@@ -14,6 +14,32 @@ function shuffleArray(array) {
         array[j] = temp;
     }
     return array;
+}
+
+function replaceObject(array, newItem) {
+    var id = newItem.id;
+    var index = array.findIndex(item => item.id === id);
+    // Replace the item by index.
+    array.splice(index, 1, newItem);
+    return array;
+}
+
+function updateGamesInPool(pool, game) {
+    var poolGamesCopy = pool.games;
+    poolGamesCopy = replaceObject(poolGamesCopy,game);
+    return poolGamesCopy;
+}
+
+function updateScoreInGame(score, team, game) {
+    var gameCopy = game
+    if(gameCopy.teamA === team) {
+        gameCopy.scoreA = score;
+    } else if (gameCopy.teamB === team) {
+        gameCopy.scoreB = score
+    } else {
+        return game;
+    }
+    return gameCopy;
 }
 
 const DUMMY = -1;
@@ -56,14 +82,16 @@ class Tournament extends React.Component {
             nbPools: 1,
             showAddTeams: true,
             showSelectNbPools: false,
-            showPools: false
+            showPools: false,
+            showGames: false
         };
         this.handleTeamsChange = this.handleTeamsChange.bind(this);
         this.handleTeamsValidation = this.handleTeamsValidation.bind(this);
         this.handleNbPoolsChange = this.handleNbPoolsChange.bind(this);
         this.handleNbPoolsValidation = this.handleNbPoolsValidation.bind(this);
         this.updatedPools = this.updatedPools.bind(this);
-        this.handlePoolsValidation = this.handlePoolsValidation.bind(this);
+        this.handleGamesChange = this.handleGamesChange.bind(this);
+
     }
 
     handleTeamsChange(teamName) {
@@ -85,30 +113,31 @@ class Tournament extends React.Component {
     }
 
     handleNbPoolsValidation() {
-        this.shuffleTeams();
-        var newPools = this.updatedPools();
+        var shuffledTeams = shuffleArray(this.state.teams)
+        var newPools = this.updatedPools(shuffledTeams);
+        newPools = this.fillPoolsWithGames(newPools);
         this.setState(state => ({
             pools: newPools,
             showSelectNbPools: !state.showSelectNbPools,
-            showPools: !state.showPools
+            showGames: !state.showGames
         }))
     }
 
-    updatedPools() {
+    updatedPools(shuffledTeams) {
         var updatedPools = [];
         const nbPools = this.state.nbPools;
         const nbTeams = this.state.teams.length;
         var newPool;
-        var teams = this.state.teams;
+        var teams = shuffledTeams;
         for (var i = 0; i < nbTeams % nbPools; i++) {
-            newPool = new Pool(Date.now(), "Pool#" + i, []);
+            newPool = new Pool(Date.now() + "Pool" +i, "Pool#" + i, []);
             for (var k = 0; k < parseInt(nbTeams / nbPools) + 1; k++) {
                 newPool.teams = newPool.teams.concat([teams.pop()]);
             }
             updatedPools = updatedPools.concat([newPool]);
         }
         for (i; i < nbPools; i++) {
-            newPool = new Pool(Date.now(), "Pool#" + i, []);
+            newPool = new Pool(Date.now() + "Pool" +i, "Pool#" + i, []);
             for (k = 0; k < parseInt(nbTeams / nbPools); k++) {
                 newPool.teams = newPool.teams.concat([teams.pop()]);
             }
@@ -117,11 +146,14 @@ class Tournament extends React.Component {
         return updatedPools;
     }
 
-    handlePoolsValidation(){
-        var filledPools = this.fillPoolsWithGames(this.state.pools);
-        this.setState(state => ({
-            pools: filledPools
-        }))
+    handleGamesChange(score, team, game, pool){
+        game = updateScoreInGame(score, team, game)
+        pool.games = replaceObject(pool.games, game)
+        var poolsCopy = this.state.pools
+        poolsCopy = replaceObject(poolsCopy, pool)
+        this.setState({
+            pools: poolsCopy
+        })
     }
 
     fillPoolsWithGames(pools){
@@ -133,7 +165,7 @@ class Tournament extends React.Component {
                     {
                         item.map(subitem =>
                             {
-                                var g = new Game(Date.now, subitem[0], subitem[1]);
+                                var g = new Game(Date.now()+subitem[0].name+subitem[1].name, subitem[0], subitem[1]);
                                 pool.games = pool.games.concat([g]);
                             }
                         )
@@ -143,6 +175,7 @@ class Tournament extends React.Component {
         )
         return poolsCopy;
     }
+
     shuffleTeams() {
         this.setState(state => ({
             teams: shuffleArray(state.teams)
@@ -174,11 +207,11 @@ class Tournament extends React.Component {
                     </form>
                 }
                 <div>
-                    {this.state.showPools && 
+                    {this.state.showGames && 
                     <div>
-                        <Pools 
+                        <Games 
                             pools={this.state.pools} 
-                            onPoolsValidation={this.handlePoolsValidation}
+                            onChange={this.handleGamesChange}
                         />
                     </div>}
                 </div>
@@ -188,5 +221,4 @@ class Tournament extends React.Component {
     }
 
 }
-
 export default Tournament;
