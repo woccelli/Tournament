@@ -5,6 +5,10 @@ import Pool from './Model/Pool'
 import Game from './Model/Game';
 import Games from './Games'
 import TeamTable from './TeamTable'
+import Navbar from 'react-bootstrap/Navbar'
+import {logo} from './logo.svg'
+import 'bootstrap/dist/css/bootstrap.css';
+import './Tournament.css'
 
 function shuffleArray(array) {
     let i = array.length - 1;
@@ -268,6 +272,10 @@ class Tournament extends React.Component {
 
         return (
             <div className="Tournament">
+                <header className="Tournament-header">
+                    <p> Simulateur de Tournoi </p>
+                </header>
+
                 {this.state.showAddTeams &&
                     <AddTeams
                         teams={this.state.teams}
@@ -276,7 +284,9 @@ class Tournament extends React.Component {
                     />
                 }
                 {this.state.showSelectNbPools &&
-                    <form onSubmit={this.handleNbPoolsValidation}>Choisissez le nombre de Pools :
+                    <form onSubmit={this.handleNbPoolsValidation}>
+                        <h3>Choix du nombre de pools</h3>
+                        Choisissez le nombre de Pools :
                         <input
                             type="number" name="nbPools" min="1" max={Math.max(1, parseInt((this.state.teams.length + 1) / 2))}
                             id="number-pools"

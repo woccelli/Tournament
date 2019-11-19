@@ -1,22 +1,19 @@
-.App {
-  text-align: center;
+.Tournament {
+  text-align: left;
 }
 
-.App-logo {
-  height: 40vmin;
+.Tournament-logo {
+  height: 7vmin;
+  width: 7vmin;
 }
 
-.App-header {
+.Tournament-header {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
-}
-
-.App-link {
-  color: #09d3ac;
 }
