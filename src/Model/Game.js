@@ -5,7 +5,7 @@ class Game  {
         this.teamB = teamB; 
         this.scoreA = null;
         this.scoreB = null;
-        this.winner = null;
+        this.winnerId = null;
     }
 
 }

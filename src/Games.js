@@ -2,18 +2,40 @@ import React from 'react';
 import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import Table from 'react-bootstrap/Table'
+import TeamTable from './TeamTable'
 
 class Games extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
-        selectedPool: null
+        allGamesInformed: false
       }
       this.handleChange = this.handleChange.bind(this);
+      this.checkAllInformed = this.checkAllInformed.bind(this)
+    }
+
+    checkAllInformed() {
+      var allInformed = true
+      var poolsCopy = this.props.pools
+      poolsCopy.map(pool => {
+        pool.games.map(game => {
+          if(game.winnerId === null) {
+            allInformed = false
+            return;
+          }
+        })
+        if(!allInformed){
+          return;
+        }
+      })
+      if(allInformed) {
+        this.props.onAllGamesInformed()
+      }
     }
 
     handleChange(score,team,game,pool){
         this.props.onChange(score,team,game,pool);
+        this.checkAllInformed()
     }
   
     render() {
@@ -29,48 +51,9 @@ class Games extends React.Component {
             </Tab>
           ))}
           </Tabs>
-          <form onSubmit={this.props.onPoolsValidation}>
-            <button type="submit">
-              Valider
-            </button>
-          </form>
         </div>
       );
     }
-}
-
-class TeamTable extends React.Component {
-  render() {
-    return (
-      <Table responsive="sm" size="sm">
-      <thead>
-        <tr>
-          <th>Équipe</th>
-          <th>Points</th>
-          <th>Goal Average</th>
-        </tr>
-      </thead>
-      <tbody>
-          {this.props.teams.map(team => 
-            <TeamRow key={team.id} team={team}/>  
-          )}
-      </tbody>
-    </Table>  
-    );
-  }
-}
-
-class TeamRow extends React.Component {
-  render(){
-    return(
-      <tr>
-          <td width="30%">{this.props.team.name}</td>
-          <td width="10%">{this.props.team.totalPoints}</td>
-          <td width="10%">{this.props.team.goalAverage} </td>
-          <td width="50%"></td>
-      </tr>
-    )
-  }
 }
 
 class GameTable extends React.Component {

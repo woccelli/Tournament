@@ -4,6 +4,7 @@ import Team from './Model/Team'
 import Pool from './Model/Pool'
 import Game from './Model/Game';
 import Games from './Games'
+import TeamTable from './TeamTable'
 
 function shuffleArray(array) {
     let i = array.length - 1;
@@ -24,22 +25,53 @@ function replaceObject(array, newItem) {
     return array;
 }
 
-function updateGamesInPool(pool, game) {
-    var poolGamesCopy = pool.games;
-    poolGamesCopy = replaceObject(poolGamesCopy,game);
-    return poolGamesCopy;
-}
 
 function updateScoreInGame(score, team, game) {
     var gameCopy = game
-    if(gameCopy.teamA === team) {
+    if(score === ""){
+        score = null
+    }
+    if(gameCopy.teamA.id === team.id) {
         gameCopy.scoreA = score;
-    } else if (gameCopy.teamB === team) {
+    } else if (gameCopy.teamB.id === team.id) {
         gameCopy.scoreB = score
     } else {
         return game;
     }
+    var scoreA = gameCopy.scoreA;
+    var scoreB = gameCopy.scoreB;
+    if(gameCopy.scoreA !== null && gameCopy.scoreB !== null) {
+        if(parseInt(scoreA) > parseInt(scoreB)) {
+            gameCopy.winnerId = gameCopy.teamA.id
+        } else if (parseInt(scoreA) === parseInt(scoreB)) {
+            gameCopy.winnerId = "draw"
+        } else {
+            gameCopy.winnerId = gameCopy.teamB.id
+        }
+    }
     return gameCopy;
+}
+
+function updateTeams(pool) {
+    var newTeams = pool.teams
+    newTeams.map(team => {
+        let countPoints = pool.games.reduce((n, game) => n + 3*(game.winnerId === team.id) + (game.winnerId === "draw" && [game.teamA.id,game.teamB.id].some(x => x===team.id)), 0);
+        team.totalPoints = countPoints;
+    })
+    pool.teams = newTeams;
+    return pool
+}
+
+function updateTeamGoalAverage(team, games) {
+    team.goalAverage =0;
+    games.map(game => {
+        if(game.teamA.id === team.id ) {
+            team.goalAverage += parseInt(game.scoreA !== null ? game.scoreA : 0)
+        } else if (game.teamB.id === team.id  ) {
+            team.goalAverage += parseInt(game.scoreB !== null ? game.scoreB : 0)
+        }
+    })
+    return team
 }
 
 const DUMMY = -1;
@@ -83,7 +115,9 @@ class Tournament extends React.Component {
             showAddTeams: true,
             showSelectNbPools: false,
             showPools: false,
-            showGames: false
+            showGames: false,
+            showResults: false,
+            allGamesInformed:false
         };
         this.handleTeamsChange = this.handleTeamsChange.bind(this);
         this.handleTeamsValidation = this.handleTeamsValidation.bind(this);
@@ -91,7 +125,9 @@ class Tournament extends React.Component {
         this.handleNbPoolsValidation = this.handleNbPoolsValidation.bind(this);
         this.updatedPools = this.updatedPools.bind(this);
         this.handleGamesChange = this.handleGamesChange.bind(this);
-
+        this.handleAllGamesInformed = this.handleAllGamesInformed.bind(this);
+        this.handleResultsValidation = this.handleResultsValidation.bind(this);
+        this.handleRedoPhase = this.handleRedoPhase.bind(this);
     }
 
     handleTeamsChange(teamName) {
@@ -126,7 +162,7 @@ class Tournament extends React.Component {
     updatedPools(shuffledTeams) {
         var updatedPools = [];
         const nbPools = this.state.nbPools;
-        const nbTeams = this.state.teams.length;
+        const nbTeams = shuffledTeams.length;
         var newPool;
         var teams = shuffledTeams;
         for (var i = 0; i < nbTeams % nbPools; i++) {
@@ -149,11 +185,57 @@ class Tournament extends React.Component {
     handleGamesChange(score, team, game, pool){
         game = updateScoreInGame(score, team, game)
         pool.games = replaceObject(pool.games, game)
+        team = updateTeamGoalAverage(team, pool.games)
+        pool = updateTeams(pool)
         var poolsCopy = this.state.pools
         poolsCopy = replaceObject(poolsCopy, pool)
         this.setState({
             pools: poolsCopy
         })
+    }
+
+    handleAllGamesInformed(){
+        this.setState({
+            allGamesInformed: true
+        })
+    }
+
+    handleResultsValidation() {
+        var poolsCopy = this.state.pools
+        var teams = []
+        poolsCopy.map(pool => {
+            pool.teams = pool.teams.sort(function (a, b) {
+                return b.totalPoints - a.totalPoints || b.goalAverage - a.goalAverage;
+              })
+            pool.teams.map((team,index)=>{
+                team.positionInPool = index
+                teams = teams.concat([team])
+            })
+        })
+        teams = teams.sort(function (a,b) {
+            return a.positionInPool - b.positionInPool || b.totalPoints - a.totalPoints || b.goalAverage - a.goalAverage;
+        })
+        this.setState({
+            teams: teams,
+            showGames: false,
+            showResults: true,
+            allGamesInformed: false
+        })
+    }
+
+    handleRedoPhase() {
+        var newPools = this.state.pools
+        var teams = this.state.teams
+        newPools = this.updatedPools(teams.reverse())
+        newPools.map(pool => {
+            pool.teams.map(team => {team.totalPoints=0;team.goalAverage=0;team.positionInPool=null})
+        })
+        newPools = this.fillPoolsWithGames(newPools);
+        this.setState(state => ({
+            pools: newPools,
+            showGames: true,
+            showResults: false
+        }))
     }
 
     fillPoolsWithGames(pools){
@@ -206,15 +288,31 @@ class Tournament extends React.Component {
                         </button>
                     </form>
                 }
+            <div>
+                {this.state.showGames && 
                 <div>
-                    {this.state.showGames && 
-                    <div>
-                        <Games 
-                            pools={this.state.pools} 
-                            onChange={this.handleGamesChange}
-                        />
-                    </div>}
+                    <Games 
+                        pools={this.state.pools} 
+                        onChange={this.handleGamesChange}
+                        onAllGamesInformed={this.handleAllGamesInformed}
+                    />
+                    {this.state.allGamesInformed &&
+                    <button onClick={this.handleResultsValidation}>
+                        Valider tous les résultats
+                    </button>
+                    }
                 </div>
+                }
+                {this.state.showResults && 
+                <div>
+                    <h3>Résultats</h3>
+                    <TeamTable teams={this.state.teams}/>
+                    <button onClick={this.handleRedoPhase}>
+                        Recréer des pools et des matchs en fonction des résultats
+                    </button>
+                </div>
+                }
+            </div>
             </div>
 
         )
