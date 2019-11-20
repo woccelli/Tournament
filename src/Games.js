@@ -80,6 +80,7 @@ class GameTable extends React.Component {
             <th>Équipe B</th>
             <th>Score A</th>
             <th>Score B</th>
+            <th>Arbitre</th>
           </tr>
         </thead>
         <tbody>
@@ -107,8 +108,9 @@ class GameTable extends React.Component {
             <td>{this.props.index + 1}</td>
             <td>{this.props.game.teamA.name}</td>
             <td>{this.props.game.teamB.name}</td>
-            <td> <ScoreInput index={this.props.index} team={this.props.game.teamA} onChange={this.handleScoreChange}/></td>
-            <td> <ScoreInput index={this.props.index} team={this.props.game.teamB} onChange={this.handleScoreChange}/> </td>
+            <td><ScoreInput index={this.props.index} team={this.props.game.teamA} onChange={this.handleScoreChange}/></td>
+            <td><ScoreInput index={this.props.index} team={this.props.game.teamB} onChange={this.handleScoreChange}/> </td>
+            <td><input type="text"/></td>
         </tr>
       )
     }

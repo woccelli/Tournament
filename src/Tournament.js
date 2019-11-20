@@ -4,9 +4,6 @@ import Team from './Model/Team'
 import Pool from './Model/Pool'
 import Game from './Model/Game';
 import Games from './Games'
-import TeamTable from './TeamTable'
-import Navbar from 'react-bootstrap/Navbar'
-import {logo} from './logo.svg'
 import 'bootstrap/dist/css/bootstrap.css';
 import './Tournament.css'
 
@@ -235,7 +232,7 @@ class Tournament extends React.Component {
             pool.teams.map(team => {team.totalPoints=0;team.goalAverage=0;team.positionInPool=null})
         })
         newPools = this.fillPoolsWithGames(newPools);
-        this.setState(state => ({
+        this.setState(() => ({
             pools: newPools,
             showGames: true,
             showResults: false
@@ -320,9 +317,7 @@ class Tournament extends React.Component {
                 }
             </div>
             </div>
-
         )
     }
-
 }
 export default Tournament;
