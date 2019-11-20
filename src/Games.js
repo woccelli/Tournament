@@ -41,13 +41,17 @@ class Games extends React.Component {
     render() {
       return (
         <div>
+          {this.props.showResults && <div><h3>Résultats</h3></div>}
           <Tabs defaultActiveKey={this.props.pools[0].id+this.props.pools[0].name} id="pools tabs"> 
           {this.props.pools.map(item => (
             <Tab key={item.id+item.name} eventKey={item.id+item.name} title={item.name}>
-                <TeamTable teams={item.teams}/>
+                <TeamTable teams={item.teams} displayRank={this.props.showResults}/>
                 <br/>                
-                <h3>Matchs</h3>
-                <GameTable pool={item} onChange={this.handleChange}/>
+                {!this.props.showResults && 
+                <div>
+                  <h3>Matchs</h3>
+                  <GameTable pool={item} onChange={this.handleChange}/>
+                </div>}
             </Tab>
           ))}
           </Tabs>

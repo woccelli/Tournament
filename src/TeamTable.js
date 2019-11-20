@@ -7,14 +7,15 @@ class TeamTable extends React.Component {
         <Table responsive="sm" size="sm">
         <thead>
           <tr>
+            {this.props.displayRank && <th align="center">Classement</th>}
             <th>Équipe</th>
             <th>Points</th>
             <th>Goal Average</th>
           </tr>
         </thead>
         <tbody>
-            {this.props.teams.map(team => 
-              <TeamRow key={team.id} team={team}/>  
+            {this.props.teams.map((team, index) => 
+              <TeamRow key={team.id} team={team} displayIndex={this.props.displayRank} index={index}/>  
             )}
         </tbody>
       </Table>  
@@ -26,10 +27,11 @@ class TeamTable extends React.Component {
     render(){
       return(
         <tr>
+            {this.props.displayIndex && <td align="center" width="10%">{(this.props.index+1)}</td>}
             <td width="30%">{this.props.team.name}</td>
             <td width="10%">{this.props.team.totalPoints}</td>
             <td width="10%">{this.props.team.goalAverage} </td>
-            <td width="50%"></td>
+            <td width="40%"></td>
         </tr>
       )
     }

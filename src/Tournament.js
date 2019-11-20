@@ -221,7 +221,7 @@ class Tournament extends React.Component {
         })
         this.setState({
             teams: teams,
-            showGames: false,
+            pools: poolsCopy,
             showResults: true,
             allGamesInformed: false
         })
@@ -305,21 +305,17 @@ class Tournament extends React.Component {
                         pools={this.state.pools} 
                         onChange={this.handleGamesChange}
                         onAllGamesInformed={this.handleAllGamesInformed}
+                        showResults={this.state.showResults}
                     />
                     {this.state.allGamesInformed &&
                     <button onClick={this.handleResultsValidation}>
                         Valider tous les résultats
                     </button>
                     }
-                </div>
-                }
-                {this.state.showResults && 
-                <div>
-                    <h3>Résultats</h3>
-                    <TeamTable teams={this.state.teams}/>
+                    {this.state.showResults &&
                     <button onClick={this.handleRedoPhase}>
                         Recréer des pools et des matchs en fonction des résultats
-                    </button>
+                    </button>}
                 </div>
                 }
             </div>
