@@ -8,10 +8,10 @@ class Team {
     this.goalAverage = 0;
     this.positionInPool = null;
   }
-  
+
   resetScores() {
-    this.totalPoints=0;
-    this.goalAverage=0;
+    this.totalPoints = 0;
+    this.goalAverage = 0;
   }
 }
 

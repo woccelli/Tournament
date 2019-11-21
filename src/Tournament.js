@@ -4,107 +4,9 @@ import Team from './Model/Team'
 import Pool from './Model/Pool'
 import Game from './Model/Game';
 import Games from './Games'
+import * as utils from './utils.js';
 import 'bootstrap/dist/css/bootstrap.css';
 import './Tournament.css'
-
-function shuffleArray(array) {
-    let i = array.length - 1;
-    for (; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        const temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-    return array;
-}
-
-function replaceObject(array, newItem) {
-    var id = newItem.id;
-    var index = array.findIndex(item => item.id === id);
-    // Replace the item by index.
-    array.splice(index, 1, newItem);
-    return array;
-}
-
-
-function updateScoreInGame(score, team, game) {
-    var gameCopy = game
-    if(score === ""){
-        score = null
-    }
-    if(gameCopy.teamA.id === team.id) {
-        gameCopy.scoreA = score;
-    } else if (gameCopy.teamB.id === team.id) {
-        gameCopy.scoreB = score
-    } else {
-        return game;
-    }
-    var scoreA = gameCopy.scoreA;
-    var scoreB = gameCopy.scoreB;
-    if(gameCopy.scoreA !== null && gameCopy.scoreB !== null) {
-        if(parseInt(scoreA) > parseInt(scoreB)) {
-            gameCopy.winnerId = gameCopy.teamA.id
-        } else if (parseInt(scoreA) === parseInt(scoreB)) {
-            gameCopy.winnerId = "draw"
-        } else {
-            gameCopy.winnerId = gameCopy.teamB.id
-        }
-    }
-    return gameCopy;
-}
-
-function updateTeams(pool) {
-    var newTeams = pool.teams
-    newTeams.map(team => {
-        let countPoints = pool.games.reduce((n, game) => n + 3*(game.winnerId === team.id) + (game.winnerId === "draw" && [game.teamA.id,game.teamB.id].some(x => x===team.id)), 0);
-        team.totalPoints = countPoints;
-    })
-    pool.teams = newTeams;
-    return pool
-}
-
-function updateTeamGoalAverage(team, games) {
-    team.goalAverage =0;
-    games.map(game => {
-        if(game.teamA.id === team.id ) {
-            team.goalAverage += parseInt(game.scoreA !== null ? game.scoreA : 0)
-        } else if (game.teamB.id === team.id  ) {
-            team.goalAverage += parseInt(game.scoreB !== null ? game.scoreB : 0)
-        }
-    })
-    return team
-}
-
-const DUMMY = -1;
-// returns an array of round representations (array of player pairs).
-// http://en.wikipedia.org/wiki/Round-robin_tournament#Scheduling_algorithm
-function roundrobin(n, ps) {  // n = num players
-  var rs = [];                  // rs = round array
-  if (!ps) {
-    ps = [];
-    for (var k = 1; k <= n; k += 1) {
-      ps.push(k);
-    }
-  } else {
-    ps = ps.slice();
-  }
-
-  if (n % 2 === 1) {
-    ps.push(DUMMY); // so we can match algorithm for even numbers
-    n += 1;
-  }
-  for (var j = 0; j < n - 1; j += 1) {
-    rs[j] = []; // create inner match array for round j
-    for (var i = 0; i < n / 2; i += 1) {
-      if (ps[i] !== DUMMY && ps[n - 1 - i] !== DUMMY) {
-        rs[j].push([ps[i], ps[n - 1 - i]]); // insert pair as a match
-      }
-    }
-    ps.splice(1, 0, ps.pop()); // permutate for next round
-  }
-  return rs;
-}
-
 
 class Tournament extends React.Component {
     constructor(props) {
@@ -118,7 +20,7 @@ class Tournament extends React.Component {
             showPools: false,
             showGames: false,
             showResults: false,
-            allGamesInformed:false
+            allGamesInformed: false
         };
         this.handleTeamsChange = this.handleTeamsChange.bind(this);
         this.handleTeamsValidation = this.handleTeamsValidation.bind(this);
@@ -150,7 +52,7 @@ class Tournament extends React.Component {
     }
 
     handleNbPoolsValidation() {
-        var shuffledTeams = shuffleArray(this.state.teams)
+        var shuffledTeams = utils.shuffleArray(this.state.teams)
         var newPools = this.updatedPools(shuffledTeams);
         newPools = this.fillPoolsWithGames(newPools);
         this.setState(state => ({
@@ -167,14 +69,14 @@ class Tournament extends React.Component {
         var newPool;
         var teams = shuffledTeams;
         for (var i = 0; i < nbTeams % nbPools; i++) {
-            newPool = new Pool(Date.now() + "Pool" +i, "Pool#" + i, []);
+            newPool = new Pool(Date.now() + "Pool" + i, "Pool#" + i, []);
             for (var k = 0; k < parseInt(nbTeams / nbPools) + 1; k++) {
                 newPool.teams = newPool.teams.concat([teams.pop()]);
             }
             updatedPools = updatedPools.concat([newPool]);
         }
         for (i; i < nbPools; i++) {
-            newPool = new Pool(Date.now() + "Pool" +i, "Pool#" + i, []);
+            newPool = new Pool(Date.now() + "Pool" + i, "Pool#" + i, []);
             for (k = 0; k < parseInt(nbTeams / nbPools); k++) {
                 newPool.teams = newPool.teams.concat([teams.pop()]);
             }
@@ -183,19 +85,19 @@ class Tournament extends React.Component {
         return updatedPools;
     }
 
-    handleGamesChange(score, team, game, pool){
-        game = updateScoreInGame(score, team, game)
-        pool.games = replaceObject(pool.games, game)
-        team = updateTeamGoalAverage(team, pool.games)
-        pool = updateTeams(pool)
+    handleGamesChange(score, team, game, pool) {
+        game = utils.updateScoreInGame(score, team, game)
+        pool.games = utils.replaceObject(pool.games, game)
+        team = utils.updateTeamGoalAverage(team, pool.games)
+        pool = utils.updateTeams(pool)
         var poolsCopy = this.state.pools
-        poolsCopy = replaceObject(poolsCopy, pool)
+        poolsCopy = utils.replaceObject(poolsCopy, pool)
         this.setState({
             pools: poolsCopy
         })
     }
 
-    handleAllGamesInformed(){
+    handleAllGamesInformed() {
         this.setState({
             allGamesInformed: true
         })
@@ -207,13 +109,15 @@ class Tournament extends React.Component {
         poolsCopy.map(pool => {
             pool.teams = pool.teams.sort(function (a, b) {
                 return b.totalPoints - a.totalPoints || b.goalAverage - a.goalAverage;
-              })
-            pool.teams.map((team,index)=>{
+            })
+            pool.teams.map((team, index) => {
                 team.positionInPool = index
                 teams = teams.concat([team])
+                return teams
             })
+            return pool
         })
-        teams = teams.sort(function (a,b) {
+        teams = teams.sort(function (a, b) {
             return a.positionInPool - b.positionInPool || b.totalPoints - a.totalPoints || b.goalAverage - a.goalAverage;
         })
         this.setState({
@@ -229,7 +133,13 @@ class Tournament extends React.Component {
         var teams = this.state.teams
         newPools = this.updatedPools(teams.reverse())
         newPools.map(pool => {
-            pool.teams.map(team => {team.totalPoints=0;team.goalAverage=0;team.positionInPool=null})
+            pool.teams.map(team => {
+                team.totalPoints = 0;
+                team.goalAverage = 0;
+                team.positionInPool = null;
+                return team
+            })
+            return pool
         })
         newPools = this.fillPoolsWithGames(newPools);
         this.setState(() => ({
@@ -239,29 +149,29 @@ class Tournament extends React.Component {
         }))
     }
 
-    fillPoolsWithGames(pools){
+    fillPoolsWithGames(pools) {
         var poolsCopy = pools;
-        poolsCopy.map(pool =>
-            {
-                var res = roundrobin(pool.teams.length, pool.teams);
-                res.map(item => 
-                    {
-                        item.map(subitem =>
-                            {
-                                var g = new Game(Date.now()+subitem[0].name+subitem[1].name, subitem[0], subitem[1]);
-                                pool.games = pool.games.concat([g]);
-                            }
-                        )
-                    }
+        poolsCopy.map(pool => {
+            var res = utils.roundrobin(pool.teams.length, pool.teams);
+            res.map(item => {
+                item.map(subitem => {
+                    var g = new Game(Date.now() + subitem[0].name + subitem[1].name, subitem[0], subitem[1]);
+                    pool.games = pool.games.concat([g]);
+                    return item
+                }
                 )
+                return res
             }
+            )
+            return pool
+        }
         )
         return poolsCopy;
     }
 
     shuffleTeams() {
         this.setState(state => ({
-            teams: shuffleArray(state.teams)
+            teams: utils.shuffleArray(state.teams)
         }));
     }
 
@@ -295,27 +205,27 @@ class Tournament extends React.Component {
                         </button>
                     </form>
                 }
-            <div>
-                {this.state.showGames && 
                 <div>
-                    <Games 
-                        pools={this.state.pools} 
-                        onChange={this.handleGamesChange}
-                        onAllGamesInformed={this.handleAllGamesInformed}
-                        showResults={this.state.showResults}
-                    />
-                    {this.state.allGamesInformed &&
-                    <button onClick={this.handleResultsValidation}>
-                        Valider tous les résultats
+                    {this.state.showGames &&
+                        <div>
+                            <Games
+                                pools={this.state.pools}
+                                onChange={this.handleGamesChange}
+                                onAllGamesInformed={this.handleAllGamesInformed}
+                                showResults={this.state.showResults}
+                            />
+                            {this.state.allGamesInformed &&
+                                <button onClick={this.handleResultsValidation}>
+                                    Valider tous les résultats
                     </button>
-                    }
-                    {this.state.showResults &&
-                    <button onClick={this.handleRedoPhase}>
-                        Recréer des pools et des matchs en fonction des résultats
+                            }
+                            {this.state.showResults &&
+                                <button onClick={this.handleRedoPhase}>
+                                    Recréer des pools et des matchs en fonction des résultats
                     </button>}
+                        </div>
+                    }
                 </div>
-                }
-            </div>
             </div>
         )
     }

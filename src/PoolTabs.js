@@ -7,19 +7,19 @@ import Table from 'react-bootstrap/Table'
 
 class PoolTabs extends React.Component {
     constructor(props) {
-      super(props);
+        super(props);
     }
-  
+
     render() {
         let poolTabs;
-        if(this.props.pools != null && this.props.pools.length > 0) {
+        if (this.props.pools != null && this.props.pools.length > 0) {
             var poolsClone = this.props.pools;
-            poolTabs = 
-            <Tabs defaultActiveKey={poolsClone[0].name} id="pools">
-                {poolsClone.map(item => 
-                    <PoolTab key={item.name} name={item.name}>{item.name}</PoolTab>
-                )}
-            </Tabs>
+            poolTabs =
+                <Tabs defaultActiveKey={poolsClone[0].name} id="pools">
+                    {poolsClone.map(item =>
+                        <PoolTab key={item.name} name={item.name}>{item.name}</PoolTab>
+                    )}
+                </Tabs>
         } else {
             poolTabs = null
         }
@@ -34,9 +34,9 @@ class PoolTabs extends React.Component {
 }
 
 class PoolTab extends React.Component {
-    render() { 
+    render() {
         return (
-                <Tab eventKey={this.props.key} title={this.props.name}> 
+            <Tab eventKey={this.props.key} title={this.props.name}>
                 Test
                 </Tab>
         )
