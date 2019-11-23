@@ -4,6 +4,7 @@ import Team from './Model/Team'
 import Pool from './Model/Pool'
 import Game from './Model/Game';
 import Games from './Games'
+import EditableText from './EditableText';
 import * as utils from './utils.js';
 import 'bootstrap/dist/css/bootstrap.css';
 import './Tournament.css'
@@ -13,6 +14,7 @@ class Tournament extends React.Component {
         super(props);
         this.state = {
             teams: [],
+            teamNames: [],
             pools: [],
             nbPools: 1,
             showAddTeams: true,
@@ -35,8 +37,10 @@ class Tournament extends React.Component {
 
     handleTeamsChange(teamName) {
         var newTeam = new Team(Date.now(), teamName);
+        var teamLabel = {value: newTeam.name, label: newTeam.name}
         this.setState(state => ({
-            teams: state.teams.concat(newTeam)
+            teams: state.teams.concat(newTeam),
+            teamNames: state.teamNames.concat(teamLabel)
         }))
     }
 
@@ -180,7 +184,7 @@ class Tournament extends React.Component {
         return (
             <div className="Tournament">
                 <header className="Tournament-header">
-                    <p> Simulateur de Tournoi </p>
+                <EditableText value="Simulateur de Tournoi" />
                 </header>
 
                 {this.state.showAddTeams &&
@@ -213,6 +217,7 @@ class Tournament extends React.Component {
                                 onChange={this.handleGamesChange}
                                 onAllGamesInformed={this.handleAllGamesInformed}
                                 showResults={this.state.showResults}
+                                teamNames={this.state.teamNames}
                             />
                             {this.state.allGamesInformed &&
                                 <button onClick={this.handleResultsValidation}>

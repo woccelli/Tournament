@@ -3,6 +3,7 @@ import Tabs from 'react-bootstrap/Tabs'
 import Tab from 'react-bootstrap/Tab'
 import Table from 'react-bootstrap/Table'
 import TeamTable from './TeamTable'
+import Select from 'react-select';
 
 class Games extends React.Component {
   constructor(props) {
@@ -47,12 +48,12 @@ class Games extends React.Component {
         <Tabs defaultActiveKey={this.props.pools[0].id + this.props.pools[0].name} id="pools tabs">
           {this.props.pools.map(item => (
             <Tab key={item.id + item.name} eventKey={item.id + item.name} title={item.name}>
-              <TeamTable teams={item.teams} displayRank={this.props.showResults} />
+            <TeamTable teams={item.teams} displayRank={this.props.showResults} />
               <br />
               {!this.props.showResults &&
                 <div>
                   <h3>Matchs</h3>
-                  <GameTable pool={item} onChange={this.handleChange} />
+                  <GameTable pool={item} onChange={this.handleChange} teamNames={this.props.teamNames} />
                 </div>}
             </Tab>
           ))}
@@ -87,7 +88,7 @@ class GameTable extends React.Component {
         </thead>
         <tbody>
           {this.props.pool.games.map((game, index) =>
-            <GameRow key={game.id} index={index} game={game} onChange={this.handleChange} />
+            <GameRow key={game.id} index={index} game={game} onChange={this.handleChange} teamNames={this.props.teamNames}/>
           )}
         </tbody>
       </Table>
@@ -112,7 +113,7 @@ class GameRow extends React.Component {
         <td>{this.props.game.teamB.name}</td>
         <td><ScoreInput index={this.props.index} team={this.props.game.teamA} onChange={this.handleScoreChange} /></td>
         <td><ScoreInput index={this.props.index} team={this.props.game.teamB} onChange={this.handleScoreChange} /> </td>
-        <td><input type="text" /></td>
+        <td width="30%"><Select options={this.props.teamNames} placeholder=""/></td>
       </tr>
     )
   }

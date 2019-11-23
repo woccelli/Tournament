@@ -6,10 +6,14 @@
     "@material-ui/core": "^4.6.1",
     "bootstrap": "^4.3.1",
     "material-ui": "^0.20.2",
-    "react": "^16.11.0",
-    "react-bootstrap": "^1.0.0-beta.14",
-    "react-dom": "^16.11.0",
+    "react": "^16.12.0",
+    "react-bootstrap": "^1.0.0-beta.16",
+    "react-dom": "^16.12.0",
+    "react-dropdown": "^1.6.4",
+    "react-dropdown-input": "^0.1.11",
+    "react-editable-text": "^1.2.1",
     "react-scripts": "3.2.0",
+    "react-select": "^3.0.8",
     "roundrobin": "^1.0.3"
   },
   "scripts": {
@@ -34,7 +38,7 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^6.6.0",
+    "eslint": "^6.7.0",
     "eslint-plugin-react": "^7.16.0"
   }
 }
