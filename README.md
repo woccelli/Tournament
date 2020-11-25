@@ -2,6 +2,7 @@
 
 Project in development, 
 made to learn React
+Available at: https://rugby-tournoi.herokuapp.com/
 
 Started on 13/11/2019
 William Occelli
